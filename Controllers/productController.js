@@ -88,7 +88,7 @@ async function deleteProduct(req, res) {
     res.status(500).json({ error: error.message });
   }
 }
-
+  
 module.exports = {
   getAllProducts,
   getProductById,
