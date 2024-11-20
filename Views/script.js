@@ -7,25 +7,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const categorySelect = document.getElementById('categorySelect');
     const productList = document.getElementById('productList');
 
-    // Load categories
+  
     fetch('http://localhost:3000/categories')
         .then(response => response.json())
         .then(categories => {
             categoryList.innerHTML = '';
             categorySelect.innerHTML = '<option value="" disabled selected>Select a category</option>';
             categories.forEach(category => {
-                // Add to category list
+               
                 const li = document.createElement('li');
                 li.textContent = category.categoryName;
                 li.dataset.id = category.categoryId;
 
-                // Add delete button
+                
                 const deleteBtn = document.createElement('button');
                 deleteBtn.textContent = 'Delete';
                 deleteBtn.onclick = () => deleteCategory(category.categoryId);
                 li.appendChild(deleteBtn);
 
-                // Add update button
+           
                 const updateBtn = document.createElement('button');
                 updateBtn.textContent = 'Update';
                 updateBtn.onclick = () => updateCategory(category.categoryId, category.categoryName);
@@ -33,7 +33,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 categoryList.appendChild(li);
 
-                // Add to category select
                 const option = document.createElement('option');
                 option.value = category.categoryId;
                 option.textContent = category.categoryName;
@@ -44,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Error fetching categories:', error);
         });
 
-    // Load products
+
     fetch('http://localhost:3000/products')
         .then(response => response.json())
         .then(products => {
@@ -54,14 +53,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 li.textContent = `${product.productName} (Category: ${product.categoryName})`;
                 li.dataset.id = product.productId;
 
-                // Add delete button
+         
                 const deleteBtn = document.createElement('button');
                 deleteBtn.textContent = 'Delete';
                 deleteBtn.classList.add('delete-btn');
                 deleteBtn.onclick = () => deleteProduct(product.productId);
                 li.appendChild(deleteBtn);
 
-                // Add update button
+               
                 const updateBtn = document.createElement('button');
                 updateBtn.textContent = 'Update';
                 updateBtn.classList.add('update-btn');
@@ -75,7 +74,6 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Error fetching products:', error);
         });
 
-    // Add category
     categoryForm.onsubmit = (e) => {
         e.preventDefault();
         const categoryName = categoryNameInput.value;
@@ -86,15 +84,15 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .then(response => response.json())
         .then(() => {
-            categoryNameInput.value = ''; // Clear input field
-            location.reload(); // Reload the page to refresh the category list
+            categoryNameInput.value = '';
+            location.reload(); 
         })
         .catch(error => {
             console.error('Error adding category:', error);
         });
     };
 
-    // Add product
+  
     productForm.onsubmit = (e) => {
         e.preventDefault();
         const productName = productNameInput.value;
@@ -106,28 +104,27 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .then(response => response.json())
         .then(() => {
-            productNameInput.value = ''; // Clear input field
-            fetchProducts(); // Refresh product list
+            productNameInput.value = ''; 
+            fetchProducts(); 
         })
         .catch(error => {
             console.error('Error adding product:', error);
         });
     };
 
-    // Delete category
+  
     function deleteCategory(categoryId) {
         fetch(`http://localhost:3000/categories/${categoryId}`, {
             method: 'DELETE'
         })
         .then(() => {
-            fetchCategories(); // Refresh category list
+            fetchCategories(); 
         })
         .catch(error => {
             console.error('Error deleting category:', error);
         });
     }
 
-    // Update category
     function updateCategory(categoryId, oldCategoryName) {
         const newCategoryName = prompt('Enter new category name:', oldCategoryName);
         if (newCategoryName && newCategoryName !== oldCategoryName) {
@@ -138,7 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
             })
             .then(response => response.json())
             .then(() => {
-                fetchCategories(); // Refresh category list
+                fetchCategories(); 
             })
             .catch(error => {
                 console.error('Error updating category:', error);
@@ -148,20 +145,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Delete product
+   
     function deleteProduct(productId) {
         fetch(`http://localhost:3000/products/${productId}`, {
             method: 'DELETE'
         })
         .then(() => {
-            fetchProducts(); // Refresh product list
+            fetchProducts(); 
         })
         .catch(error => {
             console.error('Error deleting product:', error);
         });
     }
 
-    // Update product
+   
     function updateProduct(productId, oldProductName) {
         const newProductName = prompt('Enter new product name:', oldProductName);
         if (newProductName && newProductName !== oldProductName) {
@@ -172,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
             })
             .then(response => response.json())
             .then(() => {
-                fetchProducts(); // Refresh product list
+                fetchProducts();
             })
             .catch(error => {
                 console.error('Error updating product:', error);
@@ -182,61 +179,91 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Fetch categories after adding, deleting or updating
-    function fetchCategories() {
-        fetch('http://localhost:3000/categories')
-            .then(response => response.json())
-            .then(categories => {
-                categoryList.innerHTML = '';
-                categories.forEach(category => {
-                    const li = document.createElement('li');
-                    li.textContent = category.categoryName;
-                    li.dataset.id = category.categoryId;
-
-                    const deleteBtn = document.createElement('button');
-                    deleteBtn.textContent = 'Delete';
-                    deleteBtn.onclick = () => deleteCategory(category.categoryId);
-                    li.appendChild(deleteBtn);
-
-                    const updateBtn = document.createElement('button');
-                    updateBtn.textContent = 'Update';
-                    updateBtn.onclick = () => updateCategory(category.categoryId, category.categoryName);
-                    li.appendChild(updateBtn);
-
-                    categoryList.appendChild(li);
-                });
-            })
-            .catch(error => console.error('Error fetching categories:', error));
+    async function fetchCategories() {
+        try {
+            const response = await fetch('http://localhost:3000/categories');
+            const categories = await response.json();
+            categoryList.innerHTML = '';
+            categorySelect.innerHTML = '<option value="" disabled selected>Select a category</option>';
+    
+            if (categories.length === 0) {
+                categoryList.innerHTML = 'No categories available';
+            }
+    
+            categories.forEach(category => {
+                const li = document.createElement('li');
+                li.textContent = category.categoryName;
+    
+                const actionBtns = document.createElement('div');
+                actionBtns.classList.add('action-btns');
+    
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = 'Delete';
+                deleteBtn.classList.add('delete-btn');
+                deleteBtn.addEventListener('click', () => deleteCategory(category.categoryId));
+                actionBtns.appendChild(deleteBtn);
+    
+                const updateBtn = document.createElement('button');
+                updateBtn.textContent = 'Update';
+                updateBtn.classList.add('update-btn');
+                updateBtn.addEventListener('click', () => updateCategory(category.categoryId, category.categoryName));
+                actionBtns.appendChild(updateBtn);
+    
+                li.appendChild(actionBtns);
+                categoryList.appendChild(li);
+    
+                
+                const option = document.createElement('option');
+                option.value = category.categoryId;
+                option.textContent = category.categoryName;
+                categorySelect.appendChild(option);
+            });
+        } catch (error) {
+            console.error('Error fetching categories:', error);
+            categoryList.innerHTML = 'Error loading categories.';
+        }
     }
-
-    // Fetch products after adding, deleting or updating
-    function fetchProducts() {
-        fetch('http://localhost:3000/products')
-            .then(response => response.json())
-            .then(products => {
-                productList.innerHTML = '';
-                products.forEach(product => {
-                    const li = document.createElement('li');
-                    li.textContent = `${product.productName} (Category: ${product.categoryName})`;
-                    li.dataset.id = product.productId;
-
-                    const deleteBtn = document.createElement('button');
-                    deleteBtn.textContent = 'Delete';
-                    deleteBtn.onclick = () => deleteProduct(product.productId);
-                    li.appendChild(deleteBtn);
-
-                    const updateBtn = document.createElement('button');
-                    updateBtn.textContent = 'Update';
-                    updateBtn.onclick = () => updateProduct(product.productId, product.productName);
-                    li.appendChild(updateBtn);
-
-                    productList.appendChild(li);
-                });
-            })
-            .catch(error => console.error('Error fetching products:', error));
+    
+    async function fetchProducts() {
+        try {
+            const response = await fetch('http://localhost:3000/products');
+            const products = await response.json();
+            productList.innerHTML = '';
+    
+            if (products.length === 0) {
+                productList.innerHTML = 'No products available';
+                return;
+            }
+    
+            products.forEach(product => {
+                const li = document.createElement('li');
+                li.textContent = `${product.productName} (Category: ${product.categoryName})`;
+    
+                const actionBtns = document.createElement('div');
+                actionBtns.classList.add('action-btns');
+    
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = 'Delete';
+                deleteBtn.classList.add('delete-btn');
+                deleteBtn.addEventListener('click', () => deleteProduct(product.productId));
+                actionBtns.appendChild(deleteBtn);
+    
+                const updateBtn = document.createElement('button');
+                updateBtn.textContent = 'Update';
+                updateBtn.classList.add('update-btn');
+                updateBtn.addEventListener('click', () => updateProduct(product.productId, product.productName));
+                actionBtns.appendChild(updateBtn);
+    
+                li.appendChild(actionBtns);
+                productList.appendChild(li);
+            });
+        } catch (error) {
+            console.error('Error fetching products:', error);
+        }
     }
+    
 
-    // Initial data fetch
+    
     fetchCategories();
     fetchProducts();
 });

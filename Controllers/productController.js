@@ -1,6 +1,6 @@
 const pool = require('../Config/database');
 
-// Get all products with category details
+
 async function getAllProducts(req, res) {
   try {
     const { page = 1, pageSize = 10 } = req.query;
@@ -17,10 +17,10 @@ async function getAllProducts(req, res) {
   }
 }
 
-// Get product by ID
+
 async function getProductById(req, res) {
   try {
-    const { productId } = req.params;  // Ensure the productId is correctly passed in the URL
+    const { productId } = req.params; 
     const [rows] = await pool.query(`
       SELECT p.productId AS ProductId, p.productName AS ProductName, c.categoryId AS CategoryId, c.categoryName AS CategoryName 
       FROM product p
@@ -37,10 +37,10 @@ async function getProductById(req, res) {
   }
 }
 
-// Create a new product
+
 async function createProduct(req, res) {
   try {
-    const { productName, categoryId } = req.body; // Fixed to match incoming body
+    const { productName, categoryId } = req.body; 
     const [result] = await pool.query('INSERT INTO product (productName, categoryId) VALUES (?, ?)', [productName, categoryId]);
     res.status(201).json({ productId: result.insertId, productName, categoryId });
   } catch (error) {
@@ -48,31 +48,34 @@ async function createProduct(req, res) {
   }
 }
 
-// Update a product
+
 async function updateProduct(req, res) {
   try {
-    const { productId } = req.params;  // Ensure the correct parameter is captured
-    const { productName, categoryId } = req.body;
+    const { productId } = req.params;
+    const { productName } = req.body;
 
-    // Query to update the product in the database
-    const [result] = await pool.query(`
+
+    const [result] = await pool.query(
+      `
       UPDATE product 
-      SET productName = ?, categoryId = ? 
+      SET productName = ?
       WHERE productId = ?
-    `, [productName, categoryId, productId]);  // Pass the correct parameters
+    `,
+      [productName, productId]
+    );
 
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: 'Product not found' });
     }
 
-    res.json({ productId, productName, categoryId });
+    res.json({ productId, productName });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 }
 
 
-// Delete a product
+
 async function deleteProduct(req, res) {
   try {
     const { productId } = req.params;

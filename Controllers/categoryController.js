@@ -1,6 +1,6 @@
 const pool = require('../Config/database'); 
 
-// Get all categories
+
 async function getAllCategories(req, res) {
   try {
     const [rows] = await pool.query('SELECT * FROM categories');
@@ -10,7 +10,7 @@ async function getAllCategories(req, res) {
   }
 }
 
-// Get category by ID
+
 async function getCategoryById(req, res) {
   try {
     const {categoryId} = req.params;
@@ -24,7 +24,7 @@ async function getCategoryById(req, res) {
     res.status(500).json({ error: error.message });
   }
 }
-// Create a new category
+
 async function createCategory(req, res) {
   try {
     const { categoryName } = req.body; 
@@ -42,7 +42,6 @@ async function createCategory(req, res) {
   }
 }
 
-// Update a category
 async function updateCategory(req, res) {
   try {
  
@@ -59,7 +58,7 @@ async function updateCategory(req, res) {
   }
 }
 
-// Delete a category
+
 async function deleteCategory(req, res) {
   try {
     const { categoryId } = req.params;

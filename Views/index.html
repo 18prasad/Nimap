@@ -63,7 +63,7 @@
 
         .action-btns {
             display: flex;
-            gap: 10px; /* Space between buttons */
+            gap: 10px; 
         }
 
         .delete-btn {
@@ -116,7 +116,6 @@
         const categorySelect = document.getElementById('categorySelect');
         const productList = document.getElementById('productList');
 
-        // Fetch categories and populate the UI
         async function fetchCategories() {
             try {
                 const response = await fetch('http://localhost:3000/categories');
@@ -124,8 +123,11 @@
                 categoryList.innerHTML = '';
                 categorySelect.innerHTML = '<option value="" disabled selected>Select a category</option>';
 
+                if (categories.length === 0) {
+                    categoryList.innerHTML = 'No categories available';
+                }
+
                 categories.forEach(category => {
-                    // Add to category list
                     const li = document.createElement('li');
                     li.textContent = category.categoryName;
 
@@ -135,20 +137,18 @@
                     const deleteBtn = document.createElement('button');
                     deleteBtn.textContent = 'Delete';
                     deleteBtn.classList.add('delete-btn');
-                    deleteBtn.onclick = () => deleteCategory(category.categoryId);
+                    deleteBtn.addEventListener('click', () => deleteCategory(category.categoryId));
                     actionBtns.appendChild(deleteBtn);
 
-                    // Add update button
                     const updateBtn = document.createElement('button');
                     updateBtn.textContent = 'Update';
                     updateBtn.classList.add('update-btn');
-                    updateBtn.onclick = () => updateCategory(category.categoryId, category.categoryName);
+                    updateBtn.addEventListener('click', () => updateCategory(category.categoryId, category.categoryName));
                     actionBtns.appendChild(updateBtn);
 
                     li.appendChild(actionBtns);
                     categoryList.appendChild(li);
 
-                    // Add to category select
                     const option = document.createElement('option');
                     option.value = category.categoryId;
                     option.textContent = category.categoryName;
@@ -159,12 +159,14 @@
             }
         }
 
-        // Fetch products and populate the UI
         async function fetchProducts() {
             try {
                 const response = await fetch('http://localhost:3000/products');
                 const products = await response.json();
                 productList.innerHTML = '';
+                if (products.length === 0) {
+                    productList.innerHTML = 'No products available';
+                }
                 products.forEach(product => {
                     const li = document.createElement('li');
                     li.textContent = `${product.ProductName} (Category: ${product.CategoryName})`;
@@ -175,14 +177,13 @@
                     const deleteBtn = document.createElement('button');
                     deleteBtn.textContent = 'Delete';
                     deleteBtn.classList.add('delete-btn');
-                    deleteBtn.onclick = () => deleteProduct(product.productId);
+                    deleteBtn.addEventListener('click', () => deleteProduct(product.ProductId));
                     actionBtns.appendChild(deleteBtn);
 
-                    // Add update button
                     const updateBtn = document.createElement('button');
                     updateBtn.textContent = 'Update';
                     updateBtn.classList.add('update-btn');
-                    updateBtn.onclick = () => updateProduct(product.productId, product.ProductName);
+                    updateBtn.addEventListener('click', () => updateProduct(product.ProductId, product.ProductName));
                     actionBtns.appendChild(updateBtn);
 
                     li.appendChild(actionBtns);
@@ -193,7 +194,6 @@
             }
         }
 
-        // Add event listener for category form submission
         categoryForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const categoryName = categoryNameInput.value;
@@ -210,7 +210,6 @@
             }
         });
 
-        // Add event listener for product form submission
         productForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const productName = productNameInput.value;
@@ -228,29 +227,30 @@
             }
         });
 
-        // Delete category function
         async function deleteCategory(categoryId) {
             try {
-                await fetch(`http://localhost:3000/categories/${categoryId}`, { method: 'DELETE' });
-                fetchCategories();
+                const response = await fetch(`http://localhost:3000/categories/${categoryId}`, { method: 'DELETE' });
+                if (response.ok) {
+                    fetchCategories();
+                } else {
+                    console.error('Error deleting category');
+                }
             } catch (error) {
                 console.error('Error deleting category:', error);
             }
         }
 
-        // Function to update category
         async function updateCategory(categoryId, oldCategoryName) {
             const newCategoryName = prompt('Enter new category name:', oldCategoryName);
             if (newCategoryName && newCategoryName !== oldCategoryName) {
                 try {
-                    // Make PUT request to update category
                     const response = await fetch(`http://localhost:3000/categories/${categoryId}`, {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ categoryName: newCategoryName })
                     });
                     if (response.ok) {
-                        fetchCategories(); // Refresh category list
+                        fetchCategories();
                     } else {
                         console.error('Error updating category');
                     }
@@ -263,47 +263,52 @@
         }
 
         async function deleteProduct(productId) {
+            console.log('Delete button clicked for product ID:', productId);
             try {
-                // Send DELETE request to backend API
                 const response = await fetch(`http://localhost:3000/products/${productId}`, { method: 'DELETE' });
+                console.log('Delete product response:', response);
                 if (response.ok) {
-                    // Refresh the product list
-                    fetchProducts();
+                    console.log('Product deleted successfully');
+                    fetchProducts(); 
                 } else {
-                    console.error('Error deleting product');
+                    console.error('Error deleting product. Status:', response.status);
                 }
             } catch (error) {
                 console.error('Error deleting product:', error);
             }
         }
-
-// Function to update product
-async function updateProduct(productId, oldProductName) {
-    const newProductName = prompt('Enter new product name:', oldProductName);
-    if (newProductName && newProductName !== oldProductName) {
-        try {
-            // Send PUT request to update the product name
-            const response = await fetch(`http://localhost:3000/products/${productId}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ productName: newProductName })
-            });
-
-            if (response.ok) {
-                // Refresh product list after update
-                fetchProducts();
+        
+        async function updateProduct(productId, oldProductName) {
+            console.log('Update button clicked for product ID:', productId, 'Old Product Name:', oldProductName);
+          
+            const newProductName = prompt('Enter new product name:', oldProductName);
+          
+           
+            if (newProductName && newProductName !== oldProductName) {
+              try {
+                console.log('Sending update request with new product name:', newProductName);
+                const response = await fetch(`http://localhost:3000/products/${productId}`, {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ productName: newProductName }) 
+                });
+          
+                console.log('Update product response:', response);
+          
+                if (response.ok) {
+                  console.log('Product updated successfully');
+                  fetchProducts(); 
+                } else {
+                  console.error('Error updating product. Status:', response.status);
+                }
+              } catch (error) {
+                console.error('Error updating product:', error);
+              }
             } else {
-                console.error('Error updating product');
+              console.warn('Update cancelled or invalid product name');
             }
-        } catch (error) {
-            console.error('Error updating product:', error);
-        }
-    } else {
-        alert('Product name cannot be empty or the same as the old name.');
-    }
-}
-
-        // Initial data fetch
+          }
+          
         fetchCategories();
         fetchProducts();
     </script>
