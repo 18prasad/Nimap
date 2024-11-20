@@ -20,7 +20,7 @@ async function getAllProducts(req, res) {
 
 async function getProductById(req, res) {
   try {
-    const { productId } = req.params; 
+    const { productId } = req.params;
     const [rows] = await pool.query(`
       SELECT p.productId AS ProductId, p.productName AS ProductName, c.categoryId AS CategoryId, c.categoryName AS CategoryName 
       FROM product p
@@ -52,9 +52,9 @@ async function createProduct(req, res) {
 async function updateProduct(req, res) {
   try {
     const { productId } = req.params;
-    const { productName } = req.body;
+    const { productName } = req.body; 
 
-
+   
     const [result] = await pool.query(
       `
       UPDATE product 
