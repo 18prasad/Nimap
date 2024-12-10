@@ -8,14 +8,14 @@ const PORT = 3000;
 
 app.use(bodyParser.json());
 
-// Category routes
+
 app.get('/categories', categoryController.getAllCategories);
 app.get('/categories/:id', categoryController.getCategoryById);
 app.post('/categories', categoryController.createCategory);
 app.put('/categories/:id', categoryController.updateCategory);
 app.delete('/categories/:id', categoryController.deleteCategory);
 
-// Product routes
+
 app.get('/products', productController.getAllProducts);
 app.get('/products/:id', productController.getProductById);
 app.post('/products', productController.createProduct);

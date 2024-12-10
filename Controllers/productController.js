@@ -3,15 +3,31 @@ const pool = require('../Config/database');
 
 async function getAllProducts(req, res) {
   try {
-    const { page = 1, pageSize = 10 } = req.query;
+    const { page = 1, pageSize = 10 } = req.query; 
     const offset = (page - 1) * pageSize;
+
     const [rows] = await pool.query(`
-      SELECT p.productId AS ProductId, p.productName AS ProductName, c.categoryId AS CategoryId, c.categoryName AS CategoryName 
+      SELECT p.productId AS ProductId, p.productName AS ProductName, 
+             c.categoryId AS CategoryId, c.categoryName AS CategoryName
       FROM product p
       JOIN categories c ON p.categoryId = c.categoryId
       LIMIT ?, ?
     `, [parseInt(offset), parseInt(pageSize)]);
-    res.json(rows);
+
+    const [[{ total }]] = await pool.query(`
+      SELECT COUNT(*) AS total
+      FROM product
+    `);
+
+    res.json({
+      data: rows,
+      pagination: {
+        currentPage: parseInt(page),
+        pageSize: parseInt(pageSize),
+        totalRecords: total,
+        totalPages: Math.ceil(total / pageSize),
+      },
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

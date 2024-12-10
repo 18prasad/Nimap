@@ -3,12 +3,34 @@ const pool = require('../Config/database');
 
 async function getAllCategories(req, res) {
   try {
-    const [rows] = await pool.query('SELECT * FROM categories');
-    res.json(rows);
+    const { page = 1, pageSize = 10 } = req.query;
+    const offset = (page - 1) * pageSize;
+
+    const [rows] = await pool.query(`
+      SELECT categoryId, categoryName
+      FROM categories
+      LIMIT ?, ?
+    `, [parseInt(offset), parseInt(pageSize)]);
+
+    const [[{ total }]] = await pool.query(`
+      SELECT COUNT(*) AS total
+      FROM categories
+    `);
+
+    res.json({
+      data: rows,
+      pagination: {
+        currentPage: parseInt(page),
+        pageSize: parseInt(pageSize),
+        totalRecords: total,
+        totalPages: Math.ceil(total / pageSize),
+      },
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 }
+
 
 
 async function getCategoryById(req, res) {
